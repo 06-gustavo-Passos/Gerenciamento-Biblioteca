@@ -1,5 +1,6 @@
 from collections import deque
 
+# Arquivo de persistência e estruturas inicialmente vazias.
 ARQUIVO = 'dados_sistema.txt'
 leitores = []
 reservas = deque()
@@ -7,6 +8,7 @@ devolucoes = []
 acervo = {}
 
 
+# Valida a entrada para evitar campos vazios e conflitos com o delimitador do TXT.
 def texto(mensagem):
     while True:
         valor = input(mensagem).strip()
@@ -15,6 +17,7 @@ def texto(mensagem):
         print('Informe um valor não vazio e sem o caractere |.')
 
 
+# Lista: cadastro e busca de leitores pelo código.
 def localizar_leitor(codigo):
     for leitor in leitores:
         if leitor['codigo'] == codigo:
@@ -57,6 +60,7 @@ def excluir_leitor():
         print('Leitor não encontrado.')
 
 
+# Fila: as reservas entram pelo fim e são atendidas pelo início (FIFO).
 def adicionar_reserva():
     codigo = texto('Código da reserva: ')
     if any(r['codigo'] == codigo for r in reservas):
@@ -88,12 +92,14 @@ def atualizar_reserva():
 
 def atender_reserva():
     if reservas:
+        # Remove a reserva mais antiga da fila.
         r = reservas.popleft()
         print(f"Reserva atendida: {r['codigo']} - {r['livro']}")
     else:
         print('Fila vazia.')
 
 
+# Pilha: o último livro devolvido é o primeiro a sair (LIFO).
 def registrar_devolucao():
     codigo = texto('Código da devolução: ')
     if any(d['codigo'] == codigo for d in devolucoes):
@@ -107,12 +113,14 @@ def registrar_devolucao():
 def listar_devolucoes():
     if not devolucoes:
         print('Pilha vazia.')
+    # Exibe os livros do topo até a base, sem modificar a pilha.
     for d in reversed(devolucoes):
         print(f"{d['codigo']} - {d['livro']}")
 
 
 def atualizar_topo():
     if devolucoes:
+        # O índice -1 corresponde ao último elemento da lista, ou seja, ao topo.
         devolucoes[-1]['livro'] = texto('Novo título do livro do topo: ')
         print('Topo atualizado.')
     else:
@@ -121,12 +129,14 @@ def atualizar_topo():
 
 def retirar_topo():
     if devolucoes:
+        # Remove somente o elemento do topo.
         d = devolucoes.pop()
         print(f"Livro retirado do topo: {d['livro']}")
     else:
         print('Pilha vazia.')
 
 
+# Árvore: percorre os dicionários aninhados seguindo o caminho informado.
 def obter_no(caminho):
     no = acervo
     for parte in caminho:
@@ -162,6 +172,7 @@ def adicionar_categoria():
 def mostrar_no(no, nivel=0):
     for nome, filhos in no.items():
         print('  ' * nivel + '- ' + nome)
+        # A chamada recursiva percorre as subcategorias com maior recuo.
         mostrar_no(filhos, nivel + 1)
 
 
@@ -185,6 +196,7 @@ def renomear_categoria():
     if '/' in novo or (novo in pai and novo != caminho[-1]):
         print('Nome inválido ou já existente.')
         return
+    # Troca a chave da categoria preservando seu dicionário de subcategorias.
     pai[novo] = pai.pop(caminho[-1])
     print('Categoria renomeada.')
 
@@ -198,6 +210,7 @@ def excluir_categoria():
     if pai is None or caminho[-1] not in pai:
         print('Categoria não encontrada.')
         return
+    # Impede a exclusão de uma categoria que ainda possui subcategorias.
     if pai[caminho[-1]]:
         print('A categoria contém subcategorias. Exclua as filhas primeiro.')
         return
@@ -205,6 +218,7 @@ def excluir_categoria():
     print('Categoria excluída.')
 
 
+# Gera os caminhos completos da árvore para gravar cada categoria no TXT.
 def caminhos_arvore(no, prefixo=None):
     if prefixo is None:
         prefixo = []
@@ -214,6 +228,7 @@ def caminhos_arvore(no, prefixo=None):
         yield from caminhos_arvore(filhos, caminho)
 
 
+# Persistência: grava as quatro estruturas com identificadores e delimitador |.
 def salvar_dados():
     try:
         with open(ARQUIVO, 'w', encoding='utf-8') as arquivo:
@@ -230,6 +245,7 @@ def salvar_dados():
         print(f'Erro ao salvar: {erro}')
 
 
+# Reconstrói os registros em estruturas temporárias antes de substituir os dados atuais.
 def carregar_dados():
     novos_leitores, novas_reservas, novas_devolucoes, nova_arvore = [], deque(), [], {}
     try:
@@ -253,6 +269,7 @@ def carregar_dados():
                         raise ValueError('Código de devolução duplicado')
                     novas_devolucoes.append({'codigo': campos[1], 'livro': campos[2]})
                 elif tipo == 'ARVORE' and len(campos) >= 2 and all(campos[1:]):
+                    # Cria os níveis da árvore que ainda não existem.
                     no = nova_arvore
                     for parte in campos[1:]:
                         no = no.setdefault(parte, {})
@@ -261,6 +278,7 @@ def carregar_dados():
     except (OSError, ValueError, UnicodeError) as erro:
         print(f'Não foi possível carregar os dados: {erro}.')
         return
+    # Substitui os dados em memória somente após a leitura completa do arquivo.
     leitores[:] = novos_leitores
     reservas.clear()
     reservas.extend(novas_reservas)
@@ -270,6 +288,7 @@ def carregar_dados():
     print('Dados carregados com sucesso.')
 
 
+# Menu principal: associa cada opção numérica à função correspondente.
 def menu():
     acoes = {
         '1': cadastrar_leitor, '2': listar_leitores,
@@ -306,5 +325,6 @@ def menu():
             print('Opção inválida.')
 
 
+# Inicia o menu quando o arquivo é executado diretamente.
 if __name__ == '__main__':
     menu()
