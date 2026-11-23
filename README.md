@@ -92,3 +92,10 @@ Também testei as opções de salvar e carregar dados. Após encerrar e iniciar 
 ## 7. Considerações finais
 
 Com este projeto, apliquei cada estrutura de dados a uma necessidade específica da biblioteca. A lista permite manter os cadastros, a fila organiza as reservas por ordem de chegada, a pilha controla a retirada dos livros devolvidos e a árvore representa as categorias do acervo. A divisão em funções facilitou a organização do código, e o arquivo TXT permitiu recuperar os registros entre execuções.
+## Utilização de Inteligência Artificial
+
+Durante o desenvolvimento deste projeto, utilizei ferramentas de inteligência artificial como recurso de apoio na elaboração do código e na redação desta documentação, conforme permitido no enunciado da atividade.
+
+Realizei a revisão de todo o código-fonte e executei os testes das funcionalidades no OnlineGDB, verificando o funcionamento das estruturas de dados, das operações do menu e dos mecanismos de salvamento e carregamento das informações.
+
+A utilização desse recurso teve como finalidade auxiliar no desenvolvimento do projeto e contribuir para o meu aprendizado e compreensão dos conceitos abordados na disciplina.
